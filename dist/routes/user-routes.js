@@ -156,4 +156,33 @@ userRouter.delete("/delete/:userId", user_validation_js_1.validateSession, (req,
         }
     });
 });
+userRouter.get("/all", (req, res, next) => {
+    db_js_1.default.query("SELECT * FROM users", (err, result) => {
+        if (err) {
+            return res.status(500).send({
+                message: "Database Error",
+                error: err,
+            });
+        }
+        return res.status(200).send(result);
+    });
+});
+userRouter.get("/getUsersByIds", (req, res, next) => {
+    const userIdsParam = req.query.userIds;
+    if (!userIdsParam) {
+        return res.status(400).send({
+            message: "No User IDs to search.",
+        });
+    }
+    const userIds = userIdsParam.split(",");
+    db_js_1.default.query("SELECT * FROM users WHERE id IN (?)", [userIds], (err, result) => {
+        if (err) {
+            return res.status(500).send({
+                message: "Database Error",
+                error: err,
+            });
+        }
+        return res.status(200).send(result);
+    });
+});
 exports.default = userRouter;

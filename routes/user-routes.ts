@@ -217,4 +217,42 @@ userRouter.delete(
   }
 );
 
+userRouter.get("/all", (req: Request, res: Response, next: NextFunction) => {
+  db.query("SELECT * FROM users", (err: any, result: any) => {
+    if (err) {
+      return res.status(500).send({
+        message: "Database Error",
+        error: err,
+      });
+    }
+    return res.status(200).send(result);
+  });
+});
+
+userRouter.get(
+  "/getUsersByIds",
+  (req: Request, res: Response, next: NextFunction) => {
+    const userIdsParam = req.query.userIds;
+    if (!userIdsParam) {
+      return res.status(400).send({
+        message: "No User IDs to search.",
+      });
+    }
+    const userIds = (userIdsParam as string).split(",");
+    db.query(
+      "SELECT * FROM users WHERE id IN (?)",
+      [userIds],
+      (err: any, result: any[]) => {
+        if (err) {
+          return res.status(500).send({
+            message: "Database Error",
+            error: err,
+          });
+        }
+        return res.status(200).send(result);
+      }
+    );
+  }
+);
+
 export default userRouter;

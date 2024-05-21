@@ -56,7 +56,11 @@ bookRentRoutes.patch(
           });
         }
         db.query(
-          `UPDATE users SET balance = (balance + ${penalty}) WHERE id = ${studentId}`
+          `UPDATE users SET balance = (balance + ${
+            typeof penalty === "number" && !isNaN(penalty) && penalty >= 0
+              ? penalty
+              : 0
+          }) WHERE id = ${studentId}`
         );
         return res.status(200).send({
           message: "Borrowed book entry updated successfully.",
@@ -70,18 +74,21 @@ bookRentRoutes.patch(
 bookRentRoutes.get(
   "/rented",
   (req: Request, res: Response, next: NextFunction) => {
-    db.query("SELECT * FROM borrowedBook", (err: any, result: any) => {
-      if (err) {
-        console.log(err);
-        return res.status(500).send({
-          message: err,
+    db.query(
+      "SELECT bb.*, users.name  AS sname, users.contact_no AS contact, books.name AS bookName FROM borrowedBook AS bb LEFT JOIN users ON bb.user_id = users.id LEFT JOIN books ON bb.bookId = books.id",
+      (err: any, result: any) => {
+        if (err) {
+          console.log(err);
+          return res.status(500).send({
+            message: err,
+          });
+        }
+        return res.status(200).send({
+          message: "Borrowed books fetched successfully.",
+          borrowedBooks: result,
         });
       }
-      return res.status(200).send({
-        message: "Borrowed books fetched successfully.",
-        borrowedBooks: result,
-      });
-    });
+    );
   }
 );
 

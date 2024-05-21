@@ -43,7 +43,9 @@ bookRentRoutes.patch("/return", (req, res, next) => {
                 message: "Borrowed book entry not found.",
             });
         }
-        db_js_1.default.query(`UPDATE users SET balance = (balance + ${penalty}) WHERE id = ${studentId}`);
+        db_js_1.default.query(`UPDATE users SET balance = (balance + ${typeof penalty === "number" && !isNaN(penalty) && penalty >= 0
+            ? penalty
+            : 0}) WHERE id = ${studentId}`);
         return res.status(200).send({
             message: "Borrowed book entry updated successfully.",
         });
@@ -51,7 +53,7 @@ bookRentRoutes.patch("/return", (req, res, next) => {
 });
 // Route to fetch all borrowed books
 bookRentRoutes.get("/rented", (req, res, next) => {
-    db_js_1.default.query("SELECT * FROM borrowedBook", (err, result) => {
+    db_js_1.default.query("SELECT bb.*, users.name  AS sname, users.contact_no AS contact, books.name AS bookName FROM borrowedBook AS bb LEFT JOIN users ON bb.user_id = users.id LEFT JOIN books ON bb.bookId = books.id", (err, result) => {
         if (err) {
             console.log(err);
             return res.status(500).send({
