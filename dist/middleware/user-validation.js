@@ -22,6 +22,7 @@ const validateRegistration = (req, res, next) => {
 };
 exports.validateRegistration = validateRegistration;
 const validateAdminSession = (req, res, next) => {
+    console.log(`validating ${req.headers.authorization}`);
     if (!req.headers.authorization) {
         return res.status(400).send({
             message: "Invalid Session. Please log in.",
@@ -33,8 +34,7 @@ const validateAdminSession = (req, res, next) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         req.userData = decoded;
         const role = req.userData["role"];
-        console.log(`parsed data from header: ${role}`);
-        if (role == "user") {
+        if (role == 1) {
             return res.status(400).send({
                 message: "You don't have permission to access this page.",
             });
@@ -62,8 +62,12 @@ const validateSession = (req, res, next) => {
         next();
     }
     catch (err) {
+        let errorMessage = "Invalid token.";
+        if (err.name === "TokenExpiredError") {
+            errorMessage = "Token expired.";
+        }
         return res.status(400).send({
-            message: err,
+            message: errorMessage,
         });
     }
 };

@@ -75,7 +75,7 @@ bookRentRoutes.get(
   "/rented",
   (req: Request, res: Response, next: NextFunction) => {
     db.query(
-      "SELECT bb.*, users.name  AS sname, users.contact_no AS contact, books.name AS bookName FROM borrowedBook AS bb LEFT JOIN users ON bb.user_id = users.id LEFT JOIN books ON bb.bookId = books.id",
+      "SELECT bb.*, users.name  AS sname, users.contact AS contact, books.name AS bookName FROM borrowedBook AS bb LEFT JOIN users ON bb.user_id = users.id LEFT JOIN books ON bb.bookId = books.id",
       (err: any, result: any) => {
         if (err) {
           console.log(err);
